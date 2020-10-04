@@ -1,6 +1,7 @@
 defmodule Yaf.CSV.Import do
   alias Yaf.CSV
   alias Yaf.Flashcards
+  alias Yaf.Flashcards.Flashcard
   alias Yaf.Repo
 
   defmodule Row do
@@ -35,20 +36,27 @@ defmodule Yaf.CSV.Import do
   def process(rows), do: import_rows(rows)
 
   def import_rows([_ | _] = rows) do
-     Repo.transaction(
+    Repo.transaction(
       fn ->
         imported =
           for row <- rows do
-          import_row(row)
-      end
+            import_row(row)
+          end
 
-      imported
+        imported
       end,
       timeout: 120_000
-     )
+    )
   end
 
   def import_row(row) do
+    case Repo.get_by(Flashcard, english: row.english, language: row.language) do
+      nil -> create_flashcard(row)
+      _ -> {:skip, :already_imported}
+    end
+  end
+
+  defp create_flashcard(row) do
     {:ok, flashcard} = Flashcards.create_flashcard(row.english, row.translated, row.language)
     flashcard
   end

@@ -35,14 +35,30 @@ defmodule Yaf.CSV.ImportTest do
   def wrap_csv(rows = [_ | _]), do: IO.chardata_to_string([@csv_header | rows])
 
   test "basic successful import" do
-    assert {:ok, [%Flashcard{id: id, english: "to eat", translated: "먹다", language: "korean"}]} =
+    assert {:ok, [%Flashcard{id: id, english: "to drink", translated: "마시다", language: "korean"}]} =
+             [
+               sample_row(english: "to drink", translated: "마시다")
+             ]
+             |> wrap_csv()
+             |> Import.import_csv()
+
+    assert [%Flashcard{id: id, english: "to drink", translated: "마시다", language: "korean"}] =
+             Repo.all(Flashcard)
+  end
+
+  test "don't import same word twice" do
+    assert {:ok, _} =
              [
                sample_row()
              ]
              |> wrap_csv()
              |> Import.import_csv()
 
-    assert [%Flashcard{id: id, english: "to eat", translated: "먹다", language: "korean"}] = Repo.all(Flashcard)
-
+    assert {:ok, [{:skip, :already_imported}]} =
+             [
+               sample_row()
+             ]
+             |> wrap_csv()
+             |> Import.import_csv()
   end
 end
