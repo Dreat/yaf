@@ -12,4 +12,10 @@ defmodule Yaf.Flashcards.Flashcard do
 
     timestamps()
   end
+
+  def changeset(flashcard, attrs) do
+    flashcard
+    |> cast(attrs, @required_fields)
+    |> validate_required(@required_fields)
+  end
 end

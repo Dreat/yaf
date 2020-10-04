@@ -1,5 +1,6 @@
 defmodule Yaf.CSV.Import do
   alias Yaf.CSV
+  alias Yaf.Flashcards
   alias Yaf.Repo
 
   defmodule Row do
@@ -48,6 +49,7 @@ defmodule Yaf.CSV.Import do
   end
 
   def import_row(row) do
-    %{english: row.english, translated: row.translated, language: row.language}
+    {:ok, flashcard} = Flashcards.create_flashcard(row.english, row.translated, row.language)
+    flashcard
   end
 end
