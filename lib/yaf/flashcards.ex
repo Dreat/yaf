@@ -6,11 +6,11 @@ defmodule Yaf.Flashcards do
     attrs = %{
       english: english,
       translated: translated,
-      language: language}
+      language: language
+    }
 
     %Flashcard{}
     |> Flashcard.changeset(attrs)
     |> Repo.insert()
   end
-
 end
