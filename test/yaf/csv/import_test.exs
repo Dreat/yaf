@@ -3,6 +3,7 @@ defmodule Yaf.CSV.ImportTest do
 
   alias Yaf.CSV.Import
   alias Yaf.CSV.Import.Row
+  alias Yaf.Flashcards.Flashcard
 
   @csv_header """
   english,translated,language
@@ -34,13 +35,14 @@ defmodule Yaf.CSV.ImportTest do
   def wrap_csv(rows = [_ | _]), do: IO.chardata_to_string([@csv_header | rows])
 
   test "basic successful import" do
-    assert {:ok, [%{english: "to eat", translated: "먹다", language: "korean"}]} =
+    assert {:ok, [%Flashcard{id: id, english: "to eat", translated: "먹다", language: "korean"}]} =
              [
                sample_row()
              ]
              |> wrap_csv()
              |> Import.import_csv()
 
-    # TODO add db test
+    assert [%Flashcard{id: id, english: "to eat", translated: "먹다", language: "korean"}] = Repo.all(Flashcard)
+
   end
 end
